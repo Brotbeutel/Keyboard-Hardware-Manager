@@ -2,7 +2,7 @@
 
 Ein lokaler Windows-Gerätebrowser mit Schwerpunkt auf Tastaturen. Er zeigt aktuell verbundene und – soweit Windows bzw. die eigene Historie sie kennt – früher verbundene Geräte samt Vendor ID (VID), Product ID (PID), Hersteller, Status und Zeitinformationen.
 
-**Projektstatus:** Planung / Implementierung – Funktionen und Plattformunterstützung müssen anhand der Roadmap validiert werden.
+**Projektstatus:** WP-01 – technische Grundlage dokumentiert; reale Windows-Validierung steht noch aus. Die Anwendung selbst ist noch nicht implementiert.
 
 ## Warum?
 
@@ -44,17 +44,19 @@ Die eigene Historie beginnt erst, wenn die Anwendung erstmals läuft. Kurze Verb
 
 ## Voraussetzungen
 
-Die endgültigen Voraussetzungen hängen von den in WP-01 ausgewählten Windows-Schnittstellen und dem GUI-Toolkit ab. Ziel ist Windows 10/11 und eine unterstützte Python-Version. Verbindliche Versionsangaben werden ergänzt, sobald sie getestet sind.
+Ziel ist Windows 10/11 x64. CPython 3.12/3.13 sind vorläufige Kandidaten; die verbindliche Mindestversion wird nach Auswahl und Windows-Tests der GUI- und nativen Abhängigkeiten festgelegt.
 
 ## Entwicklung
 
-Die konkrete Installations- und Startanleitung wird ergänzt, sobald Projektstruktur und Abhängigkeiten feststehen. Bis dahin gilt:
+Die konkrete Installations- und Startanleitung folgt mit der Anwendung. Für die WP-01-Machbarkeitsprüfung liegt ein read-only Snapshot-Skript vor. In einer normalen, nicht erhöhten PowerShell-Sitzung im Repository-Ordner ausführen:
 
-1. Repository klonen.
-2. Virtuelle Umgebung erstellen.
-3. Abhängigkeiten aus der festgelegten Projektdatei installieren.
-4. Anwendung über den dokumentierten Entry Point starten.
-5. Tests mit dem dokumentierten Testkommando ausführen.
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\collect-pnp-snapshot.ps1
+```
+
+Das Skript erzeugt `pnp-snapshot.json`. Vor dem Teilen bitte Namen und Hardware-IDs prüfen. Es ändert keine Geräte- oder Treibereinstellungen und exportiert keine rohen Instance IDs oder Seriennummern.
 
 Beispiel für eine virtuelle Umgebung:
 
@@ -68,6 +70,8 @@ py -m venv .venv
 - `ROADMAP.md` – Meilensteine und Akzeptanzkriterien
 - `AGENTS.md` – Regeln für KI-Agenten und Implementer
 - `IMPLEMENTER_PROMPT.md` – ausführlicher Implementierungsauftrag
+- `docs/windows-data-sources.md` – WP-01-Datenquellen, Architekturentscheidung und Validierungsstatus
+- `scripts/collect-pnp-snapshot.ps1` – read-only PnP-Snapshot für Windows
 
 ## Designreferenz
 
@@ -84,6 +88,7 @@ Die Referenz dient als Inspiration für klassische Titelleisten, graue Flächen,
 - VID/PID sind USB-Kennungen und nicht für jedes PnP-Gerät verfügbar.
 - Hersteller- und Produktstrings können fehlen oder generisch sein.
 - Ein „zuletzt angeschlossen“-Zeitpunkt kann nur dann exakt sein, wenn eine belastbare Ereignisquelle dies hergibt.
+- Echte Windows-10/11-Snapshots und Property-Berechtigungstests sind noch nicht erfolgt.
 
 ## Lizenz
 
