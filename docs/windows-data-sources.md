@@ -5,14 +5,7 @@ Arbeitspaket: WP-01 – Projektgrundlage und technische Machbarkeit
 
 ## 1. Repository-Ist-Zustand
 
-Der Standardbranch `main` enthält zum Prüfzeitpunkt ausschließlich:
-
-- `README.md`
-- `ROADMAP.md`
-- `AGENTS.md`
-- `IMPLEMENTER_PROMPT.md`
-
-Es existieren noch kein Python-Paket, keine Abhängigkeitsdefinition, keine Tests, keine CI-Konfiguration und keine Anwendung. Die Roadmap ist daher weiterhin bei WP-01. Es wurden keine Commits, Branchwechsel oder Merges vorgenommen.
+Der Standardbranch `main` enthält zum Prüfzeitpunkt die vier grundlegenden Projektdokumente sowie `docs/windows-data-sources.md` und `scripts/collect-pnp-snapshot.ps1`. Es existieren noch kein Python-Paket, keine Abhängigkeitsdefinition, keine Anwendung, keine automatisierte Testsuite und keine CI-Konfiguration. Die Dokumentationsarbeit von WP-01 ist abgeschlossen; die empirische Windows-Validierung steht aus.
 
 ## 2. Zielplattform und Laufzeit
 
@@ -165,7 +158,7 @@ Ein realer Windows-10/11-Snapshot wurde in dieser Arbeitsumgebung noch nicht erh
 
    ```powershell
    Set-ExecutionPolicy -Scope Process Bypass
-   .\\scripts\\collect-pnp-snapshot.ps1
+   .\scripts\collect-pnp-snapshot.ps1
    ```
 
 3. Die erzeugte Datei `pnp-snapshot.json` vor dem Teilen auf Gerätenamen und Hardware-IDs prüfen. Instanz-, Parent- und Container-IDs werden als kurze SHA-256-Tokens ausgegeben; rohe Instance IDs und Seriennummern werden nicht exportiert.
