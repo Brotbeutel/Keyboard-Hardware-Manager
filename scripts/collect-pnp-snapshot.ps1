@@ -15,8 +15,12 @@ function Get-Sha256Token {
     param([AllowNull()][string]$Value)
     if ([string]::IsNullOrWhiteSpace($Value)) { return $null }
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Value.ToUpperInvariant())
-    $hash = [System.Security.Cryptography.SHA256]::HashData($bytes)
-    return [Convert]::ToHexString($hash).Substring(0, 16)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = $sha.ComputeHash($bytes)
+        return ([BitConverter]::ToString($hash).Replace("-", "").Substring(0, 16))
+    }
+    finally { $sha.Dispose() }
 }
 
 function Get-DevicePropertyValue {
