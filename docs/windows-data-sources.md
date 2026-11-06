@@ -156,9 +156,22 @@ Für die erste Implementierung wird folgende Richtung empfohlen:
 
 SetupAPI dokumentiert explizit die Enumeration aller installierten Geräte sowie den optionalen Filter auf derzeit vorhandene Geräte. Das passt direkter zur Kombination aus aktuellen und von Windows noch bekannten Geräten als eine reine HIDAPI-Abfrage. CfgMgr32 liefert gezielte Status- und Property-Funktionen. PowerShell ist gut für Diagnose und frühe Snapshots, aber nicht zwingend als Laufzeitabhängigkeit einer Desktop-App.
 
-## 10. Repräsentative Snapshots – Status
+## 10. Repräsentative Snapshots – Erhebung
 
-**Noch nicht erhoben.** Das aktuelle Arbeitsumfeld dieses WP-01-Durchlaufs stellt kein Windows-10/11-Gerät mit realer PnP-Geräteliste bereit. Deshalb werden hier keine erfundenen Beispielgeräte oder vermeintlich gemessenen Ergebnisse hinterlegt.
+Ein realer Windows-10/11-Snapshot wurde in dieser Arbeitsumgebung noch nicht erhoben. Das Skript `scripts/collect-pnp-snapshot.ps1` stellt dafür einen reproduzierbaren Weg bereit:
+
+1. PowerShell normal starten, ausdrücklich **nicht** „Als Administrator“.
+2. Im Repository-Ordner ausführen:
+
+   ```powershell
+   Set-ExecutionPolicy -Scope Process Bypass
+   .\\scripts\\collect-pnp-snapshot.ps1
+   ```
+
+3. Die erzeugte Datei `pnp-snapshot.json` vor dem Teilen auf Gerätenamen und Hardware-IDs prüfen. Instanz-, Parent- und Container-IDs werden als kurze SHA-256-Tokens ausgegeben; rohe Instance IDs und Seriennummern werden nicht exportiert.
+4. Für einen Vergleich das Skript einmal mit angeschlossener Tastatur und – falls praktikabel – erneut nach dem Abziehen ausführen.
+
+Das Skript ist ein Erhebungswerkzeug, kein Ersatz für einen echten Lauf. Die Daten müssen noch auf Windows 10/11 erzeugt und geprüft werden.
 
 Für WP-03 sind mindestens folgende anonymisierte Fälle als Fixtures bzw. lokale Test-Snapshots zu erfassen:
 
@@ -171,7 +184,21 @@ Für WP-03 sind mindestens folgende anonymisierte Fälle als Fixtures bzw. lokal
 
 Vor dem Commit sind persönliche Seriennummern, vollständige Instance IDs und andere unnötige lokale Identifikatoren aus Beispieldaten zu entfernen oder zu anonymisieren.
 
-## 11. Grenzen und offene Validierung
+## 11. Validierungsstatus und Grenzen
+
+| Prüfkriterium | Status |
+|---|---|
+| Architekturentscheidung und Begründung | Dokumentiert |
+| Windows-Datenquellen und Zeitstempelgrenzen | Dokumentiert |
+| Reproduzierbarer Snapshot-Auftrag | Skript vorhanden |
+| Echter Windows-10/11-Snapshot | Noch ausstehend |
+| Berechtigungs-/Property-Test ohne Adminrechte | Noch ausstehend |
+| SetupAPI-Strukturen, Aufrufkonventionen und Handle-Lifetime | In WP-03 mit Integrationstests zu validieren |
+| GUI-Toolkit und finale Python-Mindestversion | Bewusst offen bis WP-05 bzw. Dependency-Prüfung |
+
+Keine realen Windows-Ergebnisse werden vorgetäuscht. Die ausstehenden Systemtests müssen vor bzw. während WP-03 mit echten Geräten durchgeführt werden. Die Architekturentscheidung ist belastbar genug, um die weitere Implementierung vorzubereiten; die API-Implementierung selbst ist damit noch nicht validiert.
+
+## 12. Grenzen und offene Validierung
 
 - Keine Windows-10/11-Laufzeitmessung oder reale Hardwareenumeration in diesem Arbeitspaket.
 - Keine gemessenen Berechtigungsresultate für einzelne Properties.
