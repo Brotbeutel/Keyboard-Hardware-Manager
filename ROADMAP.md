@@ -17,8 +17,6 @@ Ein kleines, lokales Windows-Werkzeug, das Hardwaregeräte – insbesondere Tast
 
 ### WP-01 – Projektgrundlage und technische Machbarkeit
 
-<badge>Dokumentation abgeschlossen · Systemvalidierung offen</badge>
-
 **Ziel:** Repository, Laufzeit und Windows-Datenquellen klären.
 
 Aufgaben:
