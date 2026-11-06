@@ -17,19 +17,24 @@ Ein kleines, lokales Windows-Werkzeug, das Hardwaregeräte – insbesondere Tast
 
 ### WP-01 – Projektgrundlage und technische Machbarkeit
 
+<badge>Dokumentation abgeschlossen · Systemvalidierung offen</badge>
+
 **Ziel:** Repository, Laufzeit und Windows-Datenquellen klären.
 
 Aufgaben:
-- Repository und vorhandene Dateien untersuchen.
-- Python-Version und Ziel-Windows-Version festlegen.
-- PnP-Datenquellen evaluieren (z. B. Windows CIM/PnP, SetupAPI oder PowerShell als kontrollierter Adapter).
-- Prüfen, welche Daten ohne Administratorrechte lesbar sind.
-- Kleine repräsentative Geräte-Snapshots dokumentieren.
+- [x] Repository und vorhandene Dateien untersuchen.
+- [x] Ziel-Windows-Version und vorläufige Python-Kandidaten dokumentieren.
+- [x] PnP-Datenquellen evaluieren und SetupAPI als bevorzugte Discovery-Basis festhalten.
+- [ ] Lesbarkeit ausgewählter Properties ohne Administratorrechte auf Windows prüfen.
+- [ ] Repräsentative Geräte-Snapshots auf Windows erheben.
+- [x] Read-only Erhebungsskript unter `scripts/collect-pnp-snapshot.ps1` bereitstellen.
 
 Akzeptanz:
 - Architekturentscheidung mit Begründung liegt vor.
 - Datenquellen und Grenzen sind in `docs/windows-data-sources.md` beschrieben.
 - Keine fragilen Annahmen über universelle Windows-Zeitstempel.
+
+**WP-01-Abnahmestatus:** Architektur- und Dokumentationsarbeit ist abgeschlossen. Die empirische Windows-Validierung ist nicht erfolgt und wird vor bzw. während WP-03 nachgeholt. Das Snapshot-Skript muss auf einem realen Windows-10/11-System ausgeführt und die Ergebnisse geprüft werden. WP-01 wird daher nicht als vollständig systemvalidiert ausgegeben.
 
 ### WP-02 – Datenmodell und SQLite
 
@@ -57,12 +62,14 @@ Aufgaben:
 - Verbunden/Getrennt-Status bestimmen.
 - Fehler einzelner Geräte isolieren.
 - Composite-Geräte und mehrere Interfaces untersuchen.
+- WP-01-Snapshot auswerten und Berechtigungsannahmen prüfen.
 
 Akzeptanz:
 - Aktuelle Tastaturen werden erkannt.
 - Abgezogene, in Windows noch bekannte Geräte werden soweit möglich angezeigt.
 - Nicht verfügbare Felder bleiben leer/„Nicht verfügbar“.
 - Erkennung funktioniert möglichst ohne Adminrechte.
+- SetupAPI-Strukturen, Property-Datentypen und Handle-Lifetime sind mit Windows-Integrationstests validiert.
 
 ### WP-04 – Historien-Tracker
 
