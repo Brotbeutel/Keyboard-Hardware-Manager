@@ -191,14 +191,6 @@ Vor dem Commit sind persönliche Seriennummern, vollständige Instance IDs und a
 
 Keine realen Windows-Ergebnisse werden vorgetäuscht. Die ausstehenden Systemtests müssen vor bzw. während WP-03 mit echten Geräten durchgeführt werden. Die Architekturentscheidung ist belastbar genug, um die weitere Implementierung vorzubereiten; die API-Implementierung selbst ist damit noch nicht validiert.
 
-## 12. Grenzen und offene Validierung
-
-- Keine Windows-10/11-Laufzeitmessung oder reale Hardwareenumeration in diesem Arbeitspaket.
-- Keine gemessenen Berechtigungsresultate für einzelne Properties.
-- Noch keine Entscheidung über GUI-Toolkit oder finale Python-Mindestversion.
-- Noch keine getestete PnP-zu-physischem-Gerät-Gruppierungslogik.
-- SetupAPI-Aufrufkonventionen, Strukturen, Puffergrößen, Property-Datentypen und Handle-Lifetime müssen in WP-03 mit Windows-Integrationstests validiert werden.
-
 ## Quellen
 
 Alle Quellen sind Microsoft Learn:
