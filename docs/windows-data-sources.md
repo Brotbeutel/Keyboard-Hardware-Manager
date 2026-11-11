@@ -5,7 +5,7 @@ Arbeitspaket: WP-01 – Projektgrundlage und technische Machbarkeit
 
 ## 1. Repository-Ist-Zustand
 
-Der Standardbranch `main` enthält zum Prüfzeitpunkt die vier grundlegenden Projektdokumente sowie `docs/windows-data-sources.md` und `scripts/collect-pnp-snapshot.ps1`. Es existieren noch kein Python-Paket, keine Abhängigkeitsdefinition, keine Anwendung, keine automatisierte Testsuite und keine CI-Konfiguration. Die Dokumentationsarbeit von WP-01 ist abgeschlossen; die empirische Windows-Validierung steht aus.
+Der aktuelle Branch `main` enthält ein Python-Kernpaket, SQLite-Persistenz, automatisierte Tests sowie den Windows-PnP-Discovery-Adapter aus WP-03. Eine GUI und CI-Konfiguration existieren noch nicht. Die empirische Windows-Validierung steht weiterhin aus.
 
 ## 2. Zielplattform und Laufzeit
 
@@ -19,7 +19,7 @@ Die Windows-Entwicklungsumgebung von Microsoft dokumentiert derzeit Python 3.14 
 
 ### 3.1 Windows SetupAPI – bevorzugte Discovery-Basis
 
-Empfohlen wird eine direkte, gekapselte Nutzung der Windows SetupAPI über `ctypes` oder ein kleines, begründetes Binding.
+Empfohlen wird eine direkte, gekapselte Nutzung der Windows SetupAPI über `ctypes`. Der WP-03-Erstadapter nutzt für die klassische Eigenschaftsauswahl `SetupDiGetDeviceRegistryPropertyW` mit dokumentierten `SPDRP_*`-IDs; das einheitliche Geräteeigenschaftenmodell über `SetupDiGetDevicePropertyW` bleibt für zusätzliche moderne Properties vorgesehen.
 
 Zentraler Einstieg:
 
@@ -28,6 +28,7 @@ Zentraler Einstieg:
 - `SetupDiEnumDeviceInfo`: iteriert die Geräteinformationselemente.
 - `SetupDiGetDeviceInstanceIdW`: ermittelt die Geräteinstanz-ID.
 - `SetupDiGetDevicePropertyW`: liest Eigenschaften des einheitlichen Windows-Geräteeigenschaftenmodells.
+- `SetupDiGetDeviceRegistryPropertyW`: liest klassische `SPDRP_*`-Eigenschaften wie Hardware-IDs, Friendly Name, Class GUID und Location Paths.
 - `SetupDiDestroyDeviceInfoList`: gibt den Geräteinformationssatz frei.
 
 Damit können zwei Snapshots erstellt oder logisch unterschieden werden: alle noch registrierten/bekannten Geräte und die aktuell vorhandenen Geräte. Das Flag `DIGCF_PRESENT` ist der dokumentierte Presence-Filter.
@@ -186,7 +187,7 @@ Vor dem Commit sind persönliche Seriennummern, vollständige Instance IDs und a
 | Reproduzierbarer Snapshot-Auftrag | Skript vorhanden |
 | Echter Windows-10/11-Snapshot | Noch ausstehend |
 | Berechtigungs-/Property-Test ohne Adminrechte | Noch ausstehend |
-| SetupAPI-Strukturen, Aufrufkonventionen und Handle-Lifetime | In WP-03 mit Integrationstests zu validieren |
+| SetupAPI-Strukturen, Aufrufkonventionen und Handle-Lifetime | Implementiert; echter Windows-Integrationstest ausstehend |
 | GUI-Toolkit und finale Python-Mindestversion | Bewusst offen bis WP-05 bzw. Dependency-Prüfung |
 
 Keine realen Windows-Ergebnisse werden vorgetäuscht. Die ausstehenden Systemtests müssen vor bzw. während WP-03 mit echten Geräten durchgeführt werden. Die Architekturentscheidung ist belastbar genug, um die weitere Implementierung vorzubereiten; die API-Implementierung selbst ist damit noch nicht validiert.
