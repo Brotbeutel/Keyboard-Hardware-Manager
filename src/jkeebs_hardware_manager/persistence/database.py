@@ -46,6 +46,7 @@ class Database:
                         first_observed_at TEXT,
                         last_connected_observed_at TEXT,
                         last_disconnected_observed_at TEXT,
+                        last_observed_at TEXT,
                         created_at TEXT NOT NULL,
                         updated_at TEXT NOT NULL
                     );
