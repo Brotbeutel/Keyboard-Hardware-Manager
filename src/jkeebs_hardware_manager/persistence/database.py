@@ -29,6 +29,7 @@ class Database:
             with self.connection:
                 self.connection.executescript(
                     """
+                    BEGIN IMMEDIATE;
                     CREATE TABLE devices (
                         instance_id TEXT PRIMARY KEY,
                         name TEXT,
@@ -85,6 +86,7 @@ class Database:
                         ON observations(instance_id, observed_at DESC);
                     CREATE INDEX idx_devices_status ON devices(status);
                     PRAGMA user_version = 1;
+                    COMMIT;
                     """
                 )
 
