@@ -46,8 +46,8 @@ def test_parse_vid_pid_does_not_guess_non_usb_or_partial_ids(identifiers):
 
 
 def test_discovery_maps_present_and_historic_devnodes_without_merging():
-    present_id = r"USB\VID_046A&PID_C33C\\A"
-    absent_id = r"USB\VID_046A&PID_C33C\\B"
+    present_id = r"USB\VID_046A&PID_C33C\A"
+    absent_id = r"USB\VID_046A&PID_C33C\B"
     raw = RawPnpScan(
         devices=(
             RawPnpDevice(
@@ -60,7 +60,7 @@ def test_discovery_maps_present_and_historic_devnodes_without_merging():
                     "SPDRP_BASE_CONTAINERID": RegistryValue("{container}", 1),
                     "SPDRP_LOCATION_PATHS": RegistryValue((r"PCIROOT(0)#USBROOT(0)",), 7),
                 },
-                parent_instance_id=r"USB\ROOT_HUB30\\1",
+                parent_instance_id=r"USB\ROOT_HUB30\1",
                 status_flags=8,
                 problem_code=0,
             ),
@@ -80,7 +80,7 @@ def test_discovery_maps_present_and_historic_devnodes_without_merging():
     assert disconnected.record.status == "disconnected"
     assert connected.record.vid_pid == "046A:C33C"
     assert connected.record.container_id == "{container}"
-    assert connected.record.parent_instance_id == r"USB\ROOT_HUB30\\1"
+    assert connected.record.parent_instance_id == r"USB\ROOT_HUB30\1"
     assert connected.record.location_paths == (r"PCIROOT(0)#USBROOT(0)",)
     assert connected.category == "keyboard"
     assert len({item.record.instance_id for item in result.devices}) == 2
