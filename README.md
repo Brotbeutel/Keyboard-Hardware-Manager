@@ -44,7 +44,7 @@ Die eigene Historie beginnt erst, wenn die Anwendung erstmals läuft. Kurze Verb
 
 ## Voraussetzungen
 
-Ziel ist Windows 10/11 x64. CPython 3.12/3.13 sind vorläufige Kandidaten; die verbindliche Mindestversion wird nach Auswahl und Windows-Tests der GUI- und nativen Abhängigkeiten festgelegt.
+Ziel ist Windows 10/11 x64. Für den aktuellen, plattformunabhängigen Python-Kern gilt CPython 3.12 oder neuer. GUI- und native Windows-Abhängigkeiten können diese Anforderung später noch konkretisieren.
 
 ## Entwicklung
 
@@ -54,7 +54,7 @@ Voraussetzung: CPython 3.12 oder neuer. Der aktuelle Kern verwendet nur die Pyth
 
 ```powershell
 py -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
 python -m pytest
 ```
@@ -70,13 +70,6 @@ Set-ExecutionPolicy -Scope Process Bypass
 ```
 
 Das Skript erzeugt `pnp-snapshot.json`. Vor dem Teilen bitte Namen und Hardware-IDs prüfen. Es ändert keine Geräte- oder Treibereinstellungen und exportiert keine rohen Instance IDs oder Seriennummern.
-
-Beispiel für eine virtuelle Umgebung:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
 
 ## Dokumentation
 
