@@ -20,3 +20,6 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra"
+markers = [
+    "windows_integration: requires a real Windows PnP environment",
+]
