@@ -148,3 +148,21 @@ def test_unknown_observation_does_not_erase_connection_timestamps(repositories):
     assert loaded is not None
     assert loaded.status == "unknown"
     assert loaded.last_connected_observed_at == connected
+
+def test_repeated_upsert_updates_one_devnode_record(repositories):
+    _, devices, _, _ = repositories
+    device = sample_device(name="Initial name")
+    devices.upsert(device)
+    devices.upsert(sample_device(name="Updated name", manufacturer="Updated maker"))
+    assert len(devices.list()) == 1
+    loaded = devices.get(device.instance_id)
+    assert loaded is not None
+    assert loaded.name == "Updated name"
+    assert loaded.manufacturer == "Updated maker"
+
+
+def test_status_filter_returns_only_matching_devices(repositories):
+    _, devices, _, _ = repositories
+    devices.upsert(sample_device(instance_id="USB\\CONNECTED", status="connected"))
+    devices.upsert(sample_device(instance_id="USB\\DISCONNECTED", status="disconnected"))
+    assert [item.status for item in devices.list(status="connected")] == ["connected"]
