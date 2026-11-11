@@ -36,18 +36,23 @@ Akzeptanz:
 
 ### WP-02 – Datenmodell und SQLite
 
+<badge>Implementierung angelegt · Testlauf ausstehend</badge>
+
 **Ziel:** Geräte und Beobachtungsereignisse lokal speichern.
 
-Aufgaben:
-- Domänenmodell für Geräte und Beobachtungen.
-- SQLite-Schema und Migrationen.
-- UTC-Zeitstempel.
-- Repository-Schicht und Tests.
+Erledigt:
+- Domänenmodelle für PnP-DevNodes, Windows-Metadaten und App-Beobachtungen.
+- SQLite-Schema v1 mit atomarer Initialmigration und Foreign Keys.
+- UTC-ISO-8601-Persistenz; naive Zeitstempel werden abgewiesen.
+- Separate Tabellen für Hardware-IDs, Windows-Metadaten und App-Beobachtungen.
+- Repository-Funktionen für Upsert, Lesen, Filtern, Historie und Löschen ausschließlich lokaler App-Daten.
+- Tests für Roundtrip, fehlende Felder, getrennte Interfaces, Zeitverlauf, Metadatenquelle und Lösch-Cascade.
 
-Akzeptanz:
-- Geräte können angelegt, aktualisiert, abgefragt und aus der App-Historie gelöscht werden.
-- Wiederholte Scans erzeugen keine unkontrollierten Duplikate.
-- Zeitstempelquelle und Zeitstempeltyp bleiben erhalten.
+Noch offen:
+- Tests in einer Python-Umgebung tatsächlich ausführen.
+- Vorhandene Testfälle bei Bedarf erweitern und den Lauf dokumentieren.
+
+**Abnahmestatus:** Code und Testfälle sind im Repository angelegt. WP-02 gilt erst nach einem tatsächlich ausgeführten grünen Testlauf als abgeschlossen.
 
 ### WP-03 – Windows-PnP-Erkennung
 
