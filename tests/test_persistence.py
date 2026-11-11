@@ -119,3 +119,32 @@ def test_delete_removes_only_app_record_and_cascades_history(repositories):
     assert devices.get(device.instance_id) is None
     assert observations.list_for_device(device.instance_id) == []
     assert metadata.list_for_device(device.instance_id) == []
+
+def test_out_of_order_observations_do_not_rewind_current_status(repositories):
+    _, devices, _, observations = repositories
+    device = sample_device(status="unknown")
+    devices.upsert(device)
+    earlier = datetime(2026, 3, 1, tzinfo=timezone.utc)
+    later = earlier + timedelta(hours=2)
+    observations.record(DeviceObservation(device.instance_id, later, "connected"))
+    observations.record(DeviceObservation(device.instance_id, earlier, "disconnected"))
+    loaded = devices.get(device.instance_id)
+    assert loaded is not None
+    assert loaded.status == "connected"
+    assert loaded.first_observed_at == earlier
+    assert loaded.last_connected_observed_at == later
+    assert loaded.last_disconnected_observed_at == earlier
+
+
+def test_unknown_observation_does_not_erase_connection_timestamps(repositories):
+    _, devices, _, observations = repositories
+    device = sample_device(status="unknown")
+    devices.upsert(device)
+    connected = datetime(2026, 4, 1, tzinfo=timezone.utc)
+    unknown = connected + timedelta(minutes=5)
+    observations.record(DeviceObservation(device.instance_id, connected, "connected"))
+    observations.record(DeviceObservation(device.instance_id, unknown, "unknown"))
+    loaded = devices.get(device.instance_id)
+    assert loaded is not None
+    assert loaded.status == "unknown"
+    assert loaded.last_connected_observed_at == connected
