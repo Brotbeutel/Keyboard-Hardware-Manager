@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import sqlite3
 from datetime import datetime, timezone
-from typing import Iterable
 
 from jkeebs_hardware_manager.domain.models import (
     DeviceObservation, DeviceRecord, WindowsMetadata, parse_utc, utc_iso,
