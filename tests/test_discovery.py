@@ -152,7 +152,7 @@ def test_decode_dword_registry_property_as_decimal_string():
 
 def test_incomplete_all_device_scan_does_not_mark_missing_devices_disconnected():
     raw = RawPnpScan(
-        devices=(RawPnpDevice(instance_id="ROOT\\\\DEVICE"),),
+        devices=(RawPnpDevice(instance_id="ROOT\\DEVICE"),),
         present_instance_ids=frozenset(),
         present_scan_complete=True,
         all_scan_complete=False,
