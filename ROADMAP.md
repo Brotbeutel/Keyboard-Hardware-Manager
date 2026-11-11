@@ -57,23 +57,26 @@ Validierung:
 
 ### WP-03 – Windows-PnP-Erkennung
 
+**Status:** Adapter und plattformunabhängige Tests implementiert · Windows-Integration ausstehend
+
 **Ziel:** Aktuelle und historisch bekannte Geräte erkennen.
 
-Aufgaben:
-- PnP-Discovery-Adapter.
-- VID/PID und Hardware-IDs auslesen.
-- Tastaturen, USB-Geräte und allgemeine PnP-Geräte kategorisieren.
-- Verbunden/Getrennt-Status bestimmen.
-- Fehler einzelner Geräte isolieren.
-- Composite-Geräte und mehrere Interfaces untersuchen.
-- WP-01-Snapshot auswerten und Berechtigungsannahmen prüfen.
+Erledigt:
+- SetupAPI-Adapter über `ctypes` mit Enumeration aller installierten DevNodes und separatem Presence-Scan.
+- CfgMgr32-Ergänzung für Parent-DevNode, Statusflags und Problemcode.
+- Auslesen klassischer SPDRP-Eigenschaften: Friendly Name, Beschreibung, Klasse, Class GUID, Hersteller, Enumerator, Hardware-/Compatible-IDs, Location Paths und Base Container ID.
+- VID/PID-Parsing nur aus vollständigen USB-Kennungen.
+- Getrennte DevNodes/Interfaces bleiben getrennte Datensätze; keine automatische Deduplizierung.
+- Windows-Metadaten werden mit Quelle, Registry-Datentyp und UTC-Erfassungszeitpunkt zurückgegeben.
+- Fehler einzelner Properties und einzelner DevNodes werden isoliert.
+- Fake-Backend und plattformunabhängige Tests ergänzt.
 
-Akzeptanz:
-- Aktuelle Tastaturen werden erkannt.
-- Abgezogene, in Windows noch bekannte Geräte werden soweit möglich angezeigt.
-- Nicht verfügbare Felder bleiben leer/„Nicht verfügbar“.
-- Erkennung funktioniert möglichst ohne Adminrechte.
-- SetupAPI-Strukturen, Property-Datentypen und Handle-Lifetime sind mit Windows-Integrationstests validiert.
+Noch offen:
+- Echter Windows-Integrationstest ohne Elevation.
+- WP-01-Snapshot auf dem Zielrechner erzeugen und mit dem Adapter vergleichen.
+- Berechtigungs- und Property-Verhalten auf Windows 10/11 prüfen.
+
+**Abnahmestatus:** Der Adapter und seine plattformunabhängige Logik sind im Repository. WP-03 ist erst nach grünem Testlauf und erfolgreichem Windows-Integrationstest abgeschlossen.
 
 ### WP-04 – Historien-Tracker
 
