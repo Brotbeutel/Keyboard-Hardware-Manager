@@ -36,7 +36,7 @@ Akzeptanz:
 
 ### WP-02 – Datenmodell und SQLite
 
-<badge>Implementierung angelegt · Testlauf ausstehend</badge>
+**Status:** WP-02 abgeschlossen
 
 **Ziel:** Geräte und Beobachtungsereignisse lokal speichern.
 
@@ -48,11 +48,12 @@ Erledigt:
 - Repository-Funktionen für Upsert, Lesen, Filtern, Historie und Löschen ausschließlich lokaler App-Daten.
 - Tests für Roundtrip, fehlende Felder, getrennte Interfaces, Zeitverlauf, Metadatenquelle und Lösch-Cascade.
 
-Noch offen:
-- Tests in einer Python-Umgebung tatsächlich ausführen.
-- Vorhandene Testfälle bei Bedarf erweitern und den Lauf dokumentieren.
+Validierung:
+- [x] Tests lokal unter Windows ausgeführt.
+- [x] 12 Tests erfolgreich: `12 passed in 0.31s`.
+- [x] Laufzeitumgebung: Windows, CPython 3.14.0, pytest 9.2.0.
 
-**Abnahmestatus:** Code und Testfälle sind im Repository angelegt. WP-02 gilt erst nach einem tatsächlich ausgeführten grünen Testlauf als abgeschlossen.
+**Abnahmestatus:** WP-02 ist abgeschlossen. Der Testlauf wurde vom Projektverantwortlichen am 11.11.2026 bestätigt.
 
 ### WP-03 – Windows-PnP-Erkennung
 
