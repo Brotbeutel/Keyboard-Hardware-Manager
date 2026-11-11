@@ -89,6 +89,7 @@ class RawPnpScan:
     present_instance_ids: frozenset[str]
     present_scan_complete: bool
     errors: tuple["DiscoveryError", ...] = ()
+    all_scan_complete: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -195,7 +196,7 @@ class WindowsPnpDiscovery:
                     instance_id.casefold() for instance_id in raw_scan.present_instance_ids
                 }:
                     status = "connected"
-                elif raw_scan.present_scan_complete:
+                elif raw_scan.present_scan_complete and raw_scan.all_scan_complete:
                     status = "disconnected"
                 else:
                     status = "unknown"
@@ -349,7 +350,7 @@ class SetupApiBackend:
         cfg.CM_Get_DevNode_Status.restype = wintypes.DWORD
 
     def scan(self) -> RawPnpScan:
-        devices, _, all_errors = self._enumerate_device_set(present_only=False, read_properties=True)
+        devices, all_scan_complete, all_errors = self._enumerate_device_set(present_only=False, read_properties=True)
         present_devices, present_complete, present_errors = self._enumerate_device_set(
             present_only=True, read_properties=False
         )
@@ -359,6 +360,7 @@ class SetupApiBackend:
             present_instance_ids=present_ids,
             present_scan_complete=present_complete,
             errors=tuple((*all_errors, *present_errors)),
+            all_scan_complete=all_scan_complete,
         )
 
     def _enumerate_device_set(
@@ -440,12 +442,19 @@ class SetupApiBackend:
         return devices, complete, errors
 
     def _get_instance_id(self, handle: int, data: _SpDevinfoData) -> str | None:
-        buffer = ctypes.create_unicode_buffer(4096)
+        buffer = ctypes.create_unicode_buffer(256)
         required = wintypes.DWORD()
         if not self._setupapi.SetupDiGetDeviceInstanceIdW(
             handle, ctypes.byref(data), buffer, len(buffer), ctypes.byref(required)
         ):
-            return None
+            code = ctypes.get_last_error()
+            if code != ERROR_INSUFFICIENT_BUFFER or required.value == 0:
+                return None
+            buffer = ctypes.create_unicode_buffer(required.value)
+            if not self._setupapi.SetupDiGetDeviceInstanceIdW(
+                handle, ctypes.byref(data), buffer, len(buffer), ctypes.byref(required)
+            ):
+                return None
         return buffer.value or None
 
     def _get_registry_property(
@@ -464,6 +473,8 @@ class SetupApiBackend:
             if code != ERROR_INSUFFICIENT_BUFFER:
                 raise OSError(code, f"SetupDiGetDeviceRegistryPropertyW failed (property 0x{property_id:02X})")
 
+        if required.value == 0:
+            return None
         buffer = ctypes.create_string_buffer(required.value)
         if not self._setupapi.SetupDiGetDeviceRegistryPropertyW(
             handle, ctypes.byref(data), property_id, ctypes.byref(registry_type),
