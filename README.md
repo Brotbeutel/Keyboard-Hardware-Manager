@@ -2,7 +2,7 @@
 
 Ein lokaler Windows-Gerätebrowser mit Schwerpunkt auf Tastaturen. Er zeigt aktuell verbundene und – soweit Windows bzw. die eigene Historie sie kennt – früher verbundene Geräte samt Vendor ID (VID), Product ID (PID), Hersteller, Status und Zeitinformationen.
 
-**Projektstatus:** WP-02 – Domänenmodell und SQLite-Persistenz implementiert. Windows-PnP-Erkennung und GUI folgen in den nächsten Arbeitspaketen; die reale Windows-Validierung aus WP-01 steht weiterhin aus.
+**Projektstatus:** WP-03 – plattformunabhängige PnP-Mappinglogik und Windows-SetupAPI/CfgMgr32-Adapter implementiert. Der echte Windows-Hardwaretest steht noch aus; GUI und Historienintegration folgen.
 
 ## Warum?
 
@@ -80,6 +80,7 @@ Das Skript erzeugt `pnp-snapshot.json`. Vor dem Teilen bitte Namen und Hardware-
 - `IMPLEMENTER_PROMPT.md` – ausführlicher Implementierungsauftrag
 - `docs/windows-data-sources.md` – WP-01-Datenquellen, Architekturentscheidung und Validierungsstatus
 - `docs/data-model.md` – Domänenmodell, SQLite-Schema und Repository-Verwendung
+- `docs/pnp-discovery.md` – SetupAPI/CfgMgr32-Adapter, Statusmodell und Tests
 - `pyproject.toml` – Paketmetadaten und Entwicklungsabhängigkeiten
 - `scripts/collect-pnp-snapshot.ps1` – read-only PnP-Snapshot für Windows
 
@@ -98,7 +99,8 @@ Die Referenz dient als Inspiration für klassische Titelleisten, graue Flächen,
 - VID/PID sind USB-Kennungen und nicht für jedes PnP-Gerät verfügbar.
 - Hersteller- und Produktstrings können fehlen oder generisch sein.
 - Ein „zuletzt angeschlossen“-Zeitpunkt kann nur dann exakt sein, wenn eine belastbare Ereignisquelle dies hergibt.
-- Echte Windows-10/11-Snapshots und Property-Berechtigungstests sind noch nicht erfolgt.
+- Echte Windows-10/11-Snapshots, Property-Berechtigungstests und der SetupAPI-Integrationstest müssen noch auf dem Zielrechner ausgeführt werden.
+- Der erste Discovery-Adapter liest klassische `SPDRP_*`-Eigenschaften. HID Usage Page/Usage sowie Treiberanbieter/-version sind noch nicht implementiert.
 
 ## Lizenz
 
