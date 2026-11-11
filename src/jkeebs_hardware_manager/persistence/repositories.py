@@ -160,7 +160,9 @@ class ObservationRepository:
                         WHEN ? = 'disconnected' AND (last_disconnected_observed_at IS NULL OR last_disconnected_observed_at < ?)
                         THEN ? ELSE last_disconnected_observed_at END,
                     status = CASE
-                        WHEN updated_at <= ? THEN ? ELSE status END,
+                        WHEN last_observed_at IS NULL OR last_observed_at <= ? THEN ? ELSE status END,
+                    last_observed_at = CASE
+                        WHEN last_observed_at IS NULL OR last_observed_at < ? THEN ? ELSE last_observed_at END,
                     updated_at = CASE WHEN updated_at < ? THEN ? ELSE updated_at END
                 WHERE instance_id = ?
                 """,
@@ -168,7 +170,7 @@ class ObservationRepository:
                  observation.status, timestamp, timestamp,
                  observation.status, timestamp, timestamp,
                  timestamp, observation.status,
-                 timestamp, timestamp, observation.instance_id),
+                 timestamp, timestamp, timestamp, timestamp, observation.instance_id),
             )
         return int(cursor.lastrowid)
 
