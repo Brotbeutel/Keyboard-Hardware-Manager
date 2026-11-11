@@ -150,14 +150,25 @@ class ObservationRepository:
             self.connection.execute(
                 """
                 UPDATE devices SET
-                    first_observed_at = COALESCE(first_observed_at, ?),
-                    last_connected_observed_at = CASE WHEN ? = 'connected' THEN ? ELSE last_connected_observed_at END,
-                    last_disconnected_observed_at = CASE WHEN ? = 'disconnected' THEN ? ELSE last_disconnected_observed_at END,
-                    status = ?, updated_at = ?
+                    first_observed_at = CASE
+                        WHEN first_observed_at IS NULL OR first_observed_at > ? THEN ?
+                        ELSE first_observed_at END,
+                    last_connected_observed_at = CASE
+                        WHEN ? = 'connected' AND (last_connected_observed_at IS NULL OR last_connected_observed_at < ?)
+                        THEN ? ELSE last_connected_observed_at END,
+                    last_disconnected_observed_at = CASE
+                        WHEN ? = 'disconnected' AND (last_disconnected_observed_at IS NULL OR last_disconnected_observed_at < ?)
+                        THEN ? ELSE last_disconnected_observed_at END,
+                    status = CASE
+                        WHEN updated_at <= ? THEN ? ELSE status END,
+                    updated_at = CASE WHEN updated_at < ? THEN ? ELSE updated_at END
                 WHERE instance_id = ?
                 """,
-                (timestamp, observation.status, timestamp, observation.status, timestamp,
-                 observation.status, timestamp, observation.instance_id),
+                (timestamp, timestamp,
+                 observation.status, timestamp, timestamp,
+                 observation.status, timestamp, timestamp,
+                 timestamp, observation.status,
+                 timestamp, timestamp, observation.instance_id),
             )
         return int(cursor.lastrowid)
 
