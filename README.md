@@ -2,7 +2,7 @@
 
 Ein lokaler Windows-Gerätebrowser mit Schwerpunkt auf Tastaturen. Er zeigt aktuell verbundene und – soweit Windows bzw. die eigene Historie sie kennt – früher verbundene Geräte samt Vendor ID (VID), Product ID (PID), Hersteller, Status und Zeitinformationen.
 
-**Projektstatus:** WP-01 – technische Grundlage dokumentiert; reale Windows-Validierung steht noch aus. Die Anwendung selbst ist noch nicht implementiert.
+**Projektstatus:** WP-02 – Domänenmodell und SQLite-Persistenz implementiert. Windows-PnP-Erkennung und GUI folgen in den nächsten Arbeitspaketen; die reale Windows-Validierung aus WP-01 steht weiterhin aus.
 
 ## Warum?
 
@@ -48,6 +48,19 @@ Ziel ist Windows 10/11 x64. CPython 3.12/3.13 sind vorläufige Kandidaten; die v
 
 ## Entwicklung
 
+### Python-Kern (WP-02)
+
+Voraussetzung: CPython 3.12 oder neuer. Der aktuelle Kern verwendet nur die Python-Standardbibliothek; für Entwicklungstests kommt pytest hinzu.
+
+```powershell
+py -m venv .venv
+.\\.venv\\Scripts\\Activate.ps1
+python -m pip install -e ".[dev]"
+python -m pytest
+```
+
+Die SQLite-Datenbank wird über `Database(path)` geöffnet. Für Tests kann `Database(":memory:")` verwendet werden. Das Datenmodell und die Persistenzschicht sind unabhängig von Windows-APIs.
+
 Die konkrete Installations- und Startanleitung folgt mit der Anwendung. Für die WP-01-Machbarkeitsprüfung liegt ein read-only Snapshot-Skript vor. In einer normalen, nicht erhöhten PowerShell-Sitzung im Repository-Ordner ausführen:
 
 
@@ -71,6 +84,8 @@ py -m venv .venv
 - `AGENTS.md` – Regeln für KI-Agenten und Implementer
 - `IMPLEMENTER_PROMPT.md` – ausführlicher Implementierungsauftrag
 - `docs/windows-data-sources.md` – WP-01-Datenquellen, Architekturentscheidung und Validierungsstatus
+- `docs/data-model.md` – Domänenmodell, SQLite-Schema und Repository-Verwendung
+- `pyproject.toml` – Paketmetadaten und Entwicklungsabhängigkeiten
 - `scripts/collect-pnp-snapshot.ps1` – read-only PnP-Snapshot für Windows
 
 ## Designreferenz
