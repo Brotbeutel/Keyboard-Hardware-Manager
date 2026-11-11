@@ -24,30 +24,30 @@ class FakeBackend:
 
 def test_parse_vid_pid_only_from_usb_identifier_with_both_values():
     assert parse_usb_vid_pid(
-        [r"USB\\VID_046A&PID_C33C&REV_0100"],
+        [r"USB\VID_046A&PID_C33C&REV_0100"],
     ) == ("046A", "C33C")
 
 
 def test_parse_vid_pid_accepts_compatible_usb_id():
     assert parse_usb_vid_pid(
         [],
-        [r"USB\\VID_ABCD&PID_1234"],
+        [r"USB\VID_ABCD&PID_1234"],
     ) == ("ABCD", "1234")
 
 
 @pytest.mark.parametrize("identifiers", [
-    [r"HID\\VID_046A&PID_C33C"],
-    [r"USB\\VID_046A"],
-    [r"USB\\PID_C33C"],
-    [r"PCI\\VEN_1234&DEV_5678"],
+    [r"HID\VID_046A&PID_C33C"],
+    [r"USB\VID_046A"],
+    [r"USB\PID_C33C"],
+    [r"PCI\VEN_1234&DEV_5678"],
 ])
 def test_parse_vid_pid_does_not_guess_non_usb_or_partial_ids(identifiers):
     assert parse_usb_vid_pid(identifiers) == (None, None)
 
 
 def test_discovery_maps_present_and_historic_devnodes_without_merging():
-    present_id = r"USB\\VID_046A&PID_C33C\\A"
-    absent_id = r"USB\\VID_046A&PID_C33C\\B"
+    present_id = r"USB\VID_046A&PID_C33C\\A"
+    absent_id = r"USB\VID_046A&PID_C33C\\B"
     raw = RawPnpScan(
         devices=(
             RawPnpDevice(
@@ -56,17 +56,17 @@ def test_discovery_maps_present_and_historic_devnodes_without_merging():
                     "SPDRP_FRIENDLYNAME": RegistryValue("Keyboard", 1),
                     "SPDRP_CLASS": RegistryValue("Keyboard", 1),
                     "SPDRP_ENUMERATOR_NAME": RegistryValue("USB", 1),
-                    "SPDRP_HARDWAREID": RegistryValue((r"USB\\VID_046A&PID_C33C",), 7),
+                    "SPDRP_HARDWAREID": RegistryValue((r"USB\VID_046A&PID_C33C",), 7),
                     "SPDRP_BASE_CONTAINERID": RegistryValue("{container}", 1),
                     "SPDRP_LOCATION_PATHS": RegistryValue((r"PCIROOT(0)#USBROOT(0)",), 7),
                 },
-                parent_instance_id=r"USB\\ROOT_HUB30\\1",
+                parent_instance_id=r"USB\ROOT_HUB30\\1",
                 status_flags=8,
                 problem_code=0,
             ),
             RawPnpDevice(instance_id=absent_id, properties={
                 "SPDRP_CLASS": RegistryValue("Keyboard", 1),
-                "SPDRP_HARDWAREID": RegistryValue((r"USB\\VID_046A&PID_C33C",), 7),
+                "SPDRP_HARDWAREID": RegistryValue((r"USB\VID_046A&PID_C33C",), 7),
             }),
         ),
         present_instance_ids=frozenset({present_id}),
@@ -80,7 +80,7 @@ def test_discovery_maps_present_and_historic_devnodes_without_merging():
     assert disconnected.record.status == "disconnected"
     assert connected.record.vid_pid == "046A:C33C"
     assert connected.record.container_id == "{container}"
-    assert connected.record.parent_instance_id == r"USB\\ROOT_HUB30\\1"
+    assert connected.record.parent_instance_id == r"USB\ROOT_HUB30\\1"
     assert connected.record.location_paths == (r"PCIROOT(0)#USBROOT(0)",)
     assert connected.category == "keyboard"
     assert len({item.record.instance_id for item in result.devices}) == 2
@@ -135,3 +135,17 @@ def test_setupapi_enumerates_pnp_without_admin_requirement():
     assert result.present_scan_complete
     assert result.devices
     assert all(device.record.instance_id for device in result.devices)
+
+@pytest.mark.parametrize(("raw", "expected"), [
+    (("A\x00B\x00\x00").encode("utf-16-le"), ("A", "B")),
+])
+def test_decode_multi_string_registry_property(raw, expected):
+    from jkeebs_hardware_manager.discovery.setupapi import REG_MULTI_SZ, SetupApiBackend
+
+    assert SetupApiBackend._decode_registry_value(raw, REG_MULTI_SZ) == expected
+
+
+def test_decode_dword_registry_property_as_decimal_string():
+    from jkeebs_hardware_manager.discovery.setupapi import REG_DWORD, SetupApiBackend
+
+    assert SetupApiBackend._decode_registry_value((42).to_bytes(4, "little"), REG_DWORD) == "42"
