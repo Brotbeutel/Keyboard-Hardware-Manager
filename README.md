@@ -61,6 +61,8 @@ python -m pytest
 
 Die SQLite-Datenbank wird über `Database(path)` geöffnet. Für Tests kann `Database(":memory:")` verwendet werden. Das Datenmodell und die Persistenzschicht sind unabhängig von Windows-APIs.
 
+**Validiert:** 12 Tests erfolgreich unter Windows mit CPython 3.14.0 und pytest 9.2.0 (`12 passed in 0.31s`, 11.11.2026).
+
 Die konkrete Installations- und Startanleitung folgt mit der Anwendung. Für die WP-01-Machbarkeitsprüfung liegt ein read-only Snapshot-Skript vor. In einer normalen, nicht erhöhten PowerShell-Sitzung im Repository-Ordner ausführen:
 
 
