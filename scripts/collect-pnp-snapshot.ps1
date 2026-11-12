@@ -41,7 +41,7 @@ function Invoke-BoundedPnpEnumeration {
             throw "PnP enumeration exceeded its $TimeoutSeconds second time limit."
         }
         $items = @(Receive-Job -Job $job -ErrorAction Stop)
-        return ,$items
+        return $items
     }
     finally {
         if ($null -ne $job) {
