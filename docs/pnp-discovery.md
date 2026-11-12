@@ -64,7 +64,19 @@ Diese grobe Klassifikation ist kein Ersatz für HID Usage Page/Usage. Eine HID-T
 
 `tests/test_discovery.py` enthält plattformunabhängige Tests für ID-Parsing, Mapping, Statuszuordnung, Composite-/Interface-Trennung, Fehlerisolation und Kategorien. Ein zusätzlicher Test mit Marker `windows_integration` ruft die echte SetupAPI auf Windows auf und prüft die Enumeration ohne explizite Elevation.
 
-Die echte Windows-Integration, Berechtigungen und Geräte-Snapshots müssen auf dem Windows-Rechner des Projektverantwortlichen ausgeführt werden. Es wurde in der Implementierungsumgebung kein realer PnP-Hardwarebestand ausgelesen. Der WP-01-Snapshot liegt nicht im Repository und wurde daher nicht ausgewertet.
+Das Snapshot-Skript `scripts/collect-pnp-snapshot.ps1` wurde nach einem gemeldeten Laufzeitproblem überarbeitet: Property-Abfragen werden gebündelt (mehrere Instance IDs und mehrere Key Names je Aufruf), die Enumeration läuft in abbrechbaren Jobs mit standardmäßig 60 Sekunden Zeitlimit pro Enumeration, und die Property-Phase hat standardmäßig ein Gesamtlimit von 300 Sekunden sowie 45 Sekunden je Batch. Die Anzahl ausgewählter Geräte ist standardmäßig auf 1.000 begrenzt. Ein partieller Export wird in Schema v2 ausdrücklich über `property_scan_complete` und `selection_truncated` markiert. Die JSON-Datei wird zunächst temporär geschrieben und anschließend atomar an den Zielpfad verschoben.
+
+Die echte Windows-Integration, Berechtigungen und Geräte-Snapshots müssen auf dem Windows-Rechner des Projektverantwortlichen ausgeführt werden. Die überarbeitete Skriptversion wurde hier nicht auf Windows ausgeführt; ihre Laufzeit und das tatsächliche Verhalten der PnP-Cmdlets sind daher noch zu bestätigen. Es wurde in der Implementierungsumgebung kein realer PnP-Hardwarebestand ausgelesen. Der WP-01-Snapshot liegt nicht im Repository und wurde daher nicht ausgewertet.
+
+## Snapshot-Skript: Laufzeitgrenzen
+
+Standardmäßig begrenzt das Skript die zwei Geräte-Enumerationen auf jeweils 60 Sekunden und die Property-Erfassung auf insgesamt 300 Sekunden. Pro Property-Batch gelten maximal 45 Sekunden; bei Erreichen eines Limits wird der Job gestoppt und – soweit bereits Daten vorliegen – ein als unvollständig markierter Snapshot geschrieben. Die Gerätezahl ist standardmäßig auf 1.000 begrenzt. Die Grenzwerte können beim Aufruf angepasst werden, z. B.:
+
+```powershell
+.\\scripts\\collect-pnp-snapshot.ps1 -MaxPropertySeconds 180 -BatchTimeoutSeconds 30 -BatchSize 50
+```
+
+Ein harter Abbruch der gesamten PowerShell-Sitzung (z. B. Prozess beenden) kann weiterhin verhindern, dass eine Snapshot-Datei geschrieben wird. Ein normales Ctrl+C wird von PowerShell behandelt; es wird keine Geräteänderung ausgeführt.
 
 ## Quellen
 
