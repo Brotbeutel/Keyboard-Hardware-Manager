@@ -249,7 +249,14 @@ $snapshot = [pscustomobject]@{
     devices = @($records)
 }
 
-$resolvedPath = [System.IO.Path]::GetFullPath($OutputPath)
+# Resolve relative paths against PowerShell's current location ($PWD), not
+# .NET's process working directory (which may be C:\Windows\System32).
+if ([System.IO.Path]::IsPathRooted($OutputPath)) {
+    $resolvedPath = [System.IO.Path]::GetFullPath($OutputPath)
+}
+else {
+    $resolvedPath = [System.IO.Path]::GetFullPath((Join-Path -Path $PWD.Path -ChildPath $OutputPath))
+}
 $parentDirectory = [System.IO.Path]::GetDirectoryName($resolvedPath)
 if (-not [System.IO.Directory]::Exists($parentDirectory)) { [void][System.IO.Directory]::CreateDirectory($parentDirectory) }
 $tempPath = "$resolvedPath.tmp"
