@@ -71,7 +71,7 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\scripts\collect-pnp-snapshot.ps1
 ```
 
-Das Skript erzeugt `pnp-snapshot.json`. Vor dem Teilen bitte Namen und Hardware-IDs prüfen. Es ändert keine Geräte- oder Treibereinstellungen und exportiert keine rohen Instance IDs oder Seriennummern.
+Das Skript erzeugt `pnp-snapshot.json`. Property-Abfragen erfolgen gebündelt; Geräte-Enumerationen sind auf jeweils 60 Sekunden und die Property-Phase standardmäßig auf 300 Sekunden begrenzt. Bei Zeitüberschreitung kann ein ausdrücklich als unvollständig markierter Snapshot entstehen. Vor dem Teilen bitte Namen und Hardware-IDs prüfen. Es ändert keine Geräte- oder Treibereinstellungen und exportiert keine rohen Instance IDs oder Seriennummern.
 
 ## Dokumentation
 
