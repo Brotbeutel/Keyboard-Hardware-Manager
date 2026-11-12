@@ -5,6 +5,7 @@
 [CmdletBinding()]
 param(
     [string]$OutputPath = ".\pnp-snapshot.json",
+    [ValidateRange(10, 180)][int]$EnumerationTimeoutSeconds = 60,
     [ValidateRange(1, 10000)][int]$MaxSelectedDevices = 1000,
     [ValidateRange(10, 600)][int]$MaxPropertySeconds = 300,
     [ValidateRange(10, 500)][int]$BatchSize = 100,
@@ -17,6 +18,39 @@ if (-not (Get-Command Get-PnpDevice -ErrorAction SilentlyContinue)) {
 }
 if (-not (Get-Command Get-PnpDeviceProperty -ErrorAction SilentlyContinue)) {
     throw "Get-PnpDeviceProperty is unavailable. Ensure the Windows PnpDevice module is installed."
+}
+
+function Invoke-BoundedPnpEnumeration {
+    param([bool]$PresentOnly, [int]$TimeoutSeconds)
+
+    $job = Start-Job -ScriptBlock {
+        param($OnlyPresent)
+        Import-Module PnpDevice -ErrorAction Stop
+        if ($OnlyPresent) {
+            Get-PnpDevice -PresentOnly -ErrorAction Stop
+        }
+        else {
+            Get-PnpDevice -ErrorAction Stop
+        }
+    } -ArgumentList $PresentOnly
+
+    try {
+        $finished = Wait-Job -Job $job -Timeout $TimeoutSeconds
+        if ($null -eq $finished -or $job.State -ne "Completed") {
+            Stop-Job -Job $job -ErrorAction SilentlyContinue
+            throw "PnP enumeration exceeded its $TimeoutSeconds second time limit."
+        }
+        $items = @(Receive-Job -Job $job -ErrorAction Stop)
+        return ,$items
+    }
+    finally {
+        if ($null -ne $job) {
+            if ($job.State -eq "Running" -or $job.State -eq "NotStarted") {
+                Stop-Job -Job $job -ErrorAction SilentlyContinue
+            }
+            Remove-Job -Job $job -Force -ErrorAction SilentlyContinue
+        }
+    }
 }
 
 function Get-Sha256Token {
@@ -53,10 +87,10 @@ function Get-UsbVidPid {
     return [pscustomobject]@{ Vid = $null; Pid = $null }
 }
 
-Write-Host "Enumerating Windows PnP devices..."
-$allDevices = @(Get-PnpDevice -ErrorAction Stop)
-Write-Host "Enumerating currently present PnP devices..."
-$presentDevices = @(Get-PnpDevice -PresentOnly -ErrorAction Stop)
+Write-Host "Enumerating Windows PnP devices (timeout: $EnumerationTimeoutSeconds s)..."
+$allDevices = @(Invoke-BoundedPnpEnumeration -PresentOnly $false -TimeoutSeconds $EnumerationTimeoutSeconds)
+Write-Host "Enumerating currently present PnP devices (timeout: $EnumerationTimeoutSeconds s)..."
+$presentDevices = @(Invoke-BoundedPnpEnumeration -PresentOnly $true -TimeoutSeconds $EnumerationTimeoutSeconds)
 
 $presentIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 foreach ($device in $presentDevices) {
@@ -104,6 +138,14 @@ try {
             break
         }
 
+        $remainingSeconds = $MaxPropertySeconds - $propertyStopwatch.Elapsed.TotalSeconds
+        if ($remainingSeconds -le 0) {
+            $propertyScanComplete = $false
+            Write-Warning "Property time budget of $MaxPropertySeconds seconds reached. Keeping collected partial data."
+            break
+        }
+        $effectiveBatchTimeout = [Math]::Max(1, [Math]::Min($BatchTimeoutSeconds, [Math]::Ceiling($remainingSeconds)))
+
         $chunk = @($selectedIds | Select-Object -Skip $offset -First $BatchSize)
         $batchNumber = [Math]::Floor($offset / $BatchSize) + 1
         $percent = [Math]::Min(100, (($offset + $chunk.Count) / [Math]::Max(1, $selectedIds.Count)) * 100)
@@ -111,11 +153,11 @@ try {
 
         try {
             $propertyJob = Get-PnpDeviceProperty -InstanceId $chunk -KeyName $propertyKeys -ThrottleLimit 8 -AsJob -ErrorAction Stop
-            $completed = Wait-Job -Job $propertyJob -Timeout $BatchTimeoutSeconds
+            $completed = Wait-Job -Job $propertyJob -Timeout $effectiveBatchTimeout
             if ($null -eq $completed -or $propertyJob.State -ne "Completed") {
                 $propertyScanComplete = $false
                 $propertyErrors++
-                Write-Warning "Property batch $batchNumber exceeded $BatchTimeoutSeconds seconds and was stopped."
+                Write-Warning "Property batch $batchNumber exceeded $effectiveBatchTimeout seconds and was stopped."
                 Stop-Job -Job $propertyJob -ErrorAction SilentlyContinue
             }
             else {
@@ -128,7 +170,10 @@ try {
                     if (-not $propertyMap.ContainsKey($instanceId)) { $propertyMap[$instanceId] = @{} }
                     $propertyMap[$instanceId][$keyName] = $property.Data
                 }
-                if (@($propertyJob.ChildJobs | Where-Object { $_.State -eq "Failed" }).Count -gt 0) { $propertyErrors++ }
+                if (@($propertyJob.ChildJobs | Where-Object { $_.State -eq "Failed" }).Count -gt 0) {
+                    $propertyErrors++
+                    $propertyScanComplete = $false
+                }
             }
         }
         catch {
